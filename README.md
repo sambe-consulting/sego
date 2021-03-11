@@ -13,9 +13,12 @@
 
 </p>
 
-## About the Confo
-Confo is a flexible multi backend configuration manager for python. Built to provide a unified configuration management
-interface in different environments.Confo supports both local configuration with json files and distributed configurations.
-best suited for micro-service and distributed systems development.
+## About Sego
+
+Sego is a framework built to assist data analysts, deploy web apps, and micro-service backends, used for:
+- Model serving 
+- Multi-stage data processing
+- And Dashboards 
+Sego Can still be used as a fully fledge web framework.
 
 
