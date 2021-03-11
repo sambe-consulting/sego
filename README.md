@@ -15,10 +15,16 @@
 
 ## About Sego
 
-Sego is a framework built to assist data analysts, deploy web apps, and micro-service backends, used for:
+Sego is a framework built to assist data analysts, deploy web apps and micro-service backends, used for:
 - Model serving 
 - Multi-stage data processing
 - And Dashboards 
-Sego Can still be used as a fully fledge web framework.
+
+Sego can also be used to build:
+- Rest APIs 
+- Micro-service topologies 
+- Normal MVC webapps 
+
+
 
 
