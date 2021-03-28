@@ -1,0 +1,2 @@
+class ConfigurationNotLoadedException(Exception):
+    pass
