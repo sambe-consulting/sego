@@ -1,7 +1,7 @@
 
 
 
-<p align="center"><img src="https://raw.githubusercontent.com/sambe-consulting/sego/master/assets/logo.png?token=ASI6IMQLECOW25335IBSGZLAJFVMW" width="400"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/sambe-consulting/sego/master/sego/assets/logo.png?token=ASI6IMQLECOW25335IBSGZLAJFVMW" width="400"></p>
 
 <p align="center"><h3 style="color: #193967; text-align: center">A web and micro-service framework for data analysts </h3></p>
 
