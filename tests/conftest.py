@@ -10,6 +10,7 @@ from sego.Routing.Router import Router
 from sego.Routing.Route import Route
 from sego.Routing.Verb import Verb
 import shutil
+from sego.Views.Views import Views
 
 from sego.Routing.Exceptions import *
 
@@ -40,3 +41,9 @@ def verb():
 @pytest.fixture
 def client(sego):
     return sego.test_session()
+
+@pytest.fixture
+def views(sego):
+    views = Views(view_path="templates/")
+    sego.register_views(views)
+    return views

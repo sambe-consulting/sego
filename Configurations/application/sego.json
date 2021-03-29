@@ -1,7 +1,7 @@
 {
   "title": "Sego",
   "description": "A web and micro-service framework for data analysts",
-  "developer": "Sambe Consulting <development@sambe.co.za",
+  "developer": "Sambe Consulting <development@sambe.co.za>",
   "release_date": "10 March 2021",
   "version": "0.1.0"
 }

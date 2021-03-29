@@ -14,8 +14,10 @@ idna==2.10
 importlib-metadata==3.7.0
 iniconfig==1.1.1
 jeepney==0.6.0
+Jinja2==2.11.3
 kazoo==2.8.0
 keyring==22.3.0
+MarkupSafe==1.1.1
 packaging==20.9
 parse==1.19.0
 pkginfo==1.7.0

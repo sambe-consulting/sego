@@ -7,15 +7,16 @@
 # ************************************************************************#
 from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
 from requests import Session as RequestsSession
+from singleton_decorator import singleton
 from webob import Request, Response
 from .Routing.Router import Router
 from confo.Confo import Confo
 import confo.Backends as BE
-import inspect
-import uuid
 from .Exceptions import *
+import uuid, os
 
 
+@singleton
 class Sego:
     def __init__(self, application_name=None):
         self.router = Router()
@@ -23,6 +24,7 @@ class Sego:
         if application_name == None:
             application_name = str(uuid.uuid4())
         self.application_name = application_name
+        self.view_environment = None
 
     def __call__(self, environ, start_response):
         request = Request(environ)
@@ -38,18 +40,27 @@ class Sego:
             action = str(handler.__name__)
             route.set_action(action=action)
             route.set_controller(controller="SegoBaseController")
-            self.configuration_manager.set("dynamic_routes",action,id(handler))
+            self.configuration_manager.set("dynamic_routes", action, id(handler))
             self.router.add_route(route)
             return handler
-
 
         return wrapper
 
     def register_routes(self, routes_package):
         self.router.register_routes(routes_package)
 
+    def get_router_object(self):
+        return self.router
+
+    def register_views(self, view):
+        self.view_environment = view
+
+    def get_view_environment(self):
+        return self.view_environment
+
     def register_configurations(self, credentials, backend_type=BE.FILE_BACKEND):
-        self.configuration_manager.load_backend(credentials=credentials, name=self.application_name, backend_type=backend_type)
+        self.configuration_manager.load_backend(credentials=credentials, name=self.application_name,
+                                                backend_type=backend_type)
         self.configuration_manager.activate_backend(backend_name=self.application_name)
         self.configuration_manager.create_namespace(self.application_name)
         self.configuration_manager.use_namespace(self.application_name)
