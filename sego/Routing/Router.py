@@ -7,7 +7,7 @@
 # ************************************************************************#
 
 from .Route import Route
-from .Exceptions import *
+from ..Exceptions import *
 from parse import parse
 from singleton_decorator import singleton
 from confo.Confo import Confo
@@ -30,7 +30,7 @@ class Router:
     def validate(self, route_parameters: dict):
         message = "Route with URL: " + route_parameters["url"] + " already exists."
         if route_parameters["url"].rstrip("/") in self.urls: raise RouteAlreadyExistsException(message)
-        if route_parameters["name"] in list(self.routes): raise UniqueNameException(
+        if route_parameters["name"] in list([r["name"] for r in self.routes]): raise UniqueNameException(
             " Use unique route names, " + route_parameters["name"] + " already exists.")
 
     def find_route(self, request_path):
