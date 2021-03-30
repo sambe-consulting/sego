@@ -18,17 +18,17 @@ def test_basic_route_adding(router):
     router.add_route(Route("test", Verb.HTTP_GET, "TestController", "index", "/test/"))
 
 
-def test_template(sego, client,views):
-    @sego.route(Route("html", Verb.HTTP_GET, "", "", "/html"))
-    def html_handler(req, resp):
-        # views = sego.get_view_environment()
-        resp.body = views.render_view("tests/index.html", context={"title": "Some Title", "name": "Some Name"}).encode()
-
-    response = client.get("http://segotestserver/html")
-
-    assert "text/html" in response.headers["Content-Type"]
-    assert "Some Title" in response.text
-    assert "Some Name" in response.text
+# def test_template(sego, client,views):
+#     @sego.route(Route("html", Verb.HTTP_GET, "", "", "/html"))
+#     def html_handler(req, resp):
+#         # views = sego.get_view_environment()
+#         resp.body = views.render_view("tests/index.html", context={"title": "Some Title", "name": "Some Name"}).encode()
+#
+#     response = client.get("http://segotestserver/html")
+#
+#     assert "text/html" in response.headers["Content-Type"]
+#     assert "Some Title" in response.text
+#     assert "Some Name" in response.text
 
 
 def test_route_overlap_throws_exception(router):
