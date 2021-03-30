@@ -1,6 +1,8 @@
 from sego.Routing.Route import Route
 from sego.Routing.Router import Router
 from sego.Routing.Verb import Verb
+from sego.sego import Sego
+sego = Sego()
 
 router = Router()  # route object
 
@@ -21,3 +23,8 @@ homepage_route = Route(name=route_name, \
 
 #add the route to the router
 router.add_route(homepage_route)
+
+# @sego.route(Route("html", Verb.HTTP_GET, "", "", "/html"))
+# def html_handler(req, resp):
+#     views = sego.get_view_environment()
+#     resp.body = views.render_view("tests/index.html", context={"title": "Some Title", "name": "Some Name"}).encode()

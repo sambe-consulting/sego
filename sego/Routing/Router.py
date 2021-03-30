@@ -51,6 +51,15 @@ class Router:
     def register_routes(self, route_paths):
         self.route_definitions = __import__(route_paths)
 
+    def dynamic_import(self,controller ):
+        controller_components = controller.split(".")
+        controller_components.insert(0,"Controllers")
+        controller_components.insert(0,"app")
+        controller_path = '.'.join(controller_components)
+        module = __import__(name=controller_path,fromlist=controller_components)
+        _class = getattr(module,controller_components[-1])
+        return _class
+
     def build_handler(self, route_parameters):
         Controller = route_parameters["controller"]
         action = route_parameters["action"]
@@ -59,9 +68,7 @@ class Router:
             handler = ctypes.cast(handler_id, ctypes.py_object).value
             return handler
 
-        controllersPackage = __import__("Controllers." + Controller)
-        module = getattr(controllersPackage, Controller)
-        _class = getattr(module, Controller)
+        _class = self.dynamic_import(Controller)
         return getattr(_class(), action)
 
     def debug(self):

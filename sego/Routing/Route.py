@@ -7,7 +7,7 @@
 # ************************************************************************#
 
 from .Verb import Verb
-from .Exceptions import *
+from ..Exceptions import *
 
 class Route:
     def __init__(self, name: str = None, verbs: int = None, controller: str = None, action: str = None,

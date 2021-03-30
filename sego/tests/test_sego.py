@@ -2,6 +2,7 @@ import sys, inspect, os
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
+parentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
 
 import pytest
@@ -10,7 +11,7 @@ from sego.sego import Sego
 from sego.Routing.Router import Router
 from sego.Routing.Route import Route
 from sego.Routing.Verb import Verb
-from sego.Routing.Exceptions import *
+from sego.Exceptions import *
 
 
 def test_basic_route_adding(router):
@@ -20,7 +21,7 @@ def test_basic_route_adding(router):
 def test_template(sego, client,views):
     @sego.route(Route("html", Verb.HTTP_GET, "", "", "/html"))
     def html_handler(req, resp):
-        views = sego.get_view_environment()
+        # views = sego.get_view_environment()
         resp.body = views.render_view("tests/index.html", context={"title": "Some Title", "name": "Some Name"}).encode()
 
     response = client.get("http://segotestserver/html")
@@ -46,7 +47,7 @@ def test_default_404_response(client):
 def test_client_can_send_requests(sego, client):
     RESPONSE_TEXT = "SEGO IS ALIVE"
 
-    @sego.route(Route(name="test", verbs=Verb.HTTP_GET, controller="", action="", url="/client_test/"))
+    @sego.route(Route(name="client_test", verbs=Verb.HTTP_GET, controller="", action="", url="/client_test/"))
     def test_handler(req, resp):
         resp.text = RESPONSE_TEXT
 
@@ -60,3 +61,18 @@ def test_parameterized_route(sego, client):
 
     assert client.get("http://segotestserver/kabelo").text == "hey kabelo"
     assert client.get("http://segotestserver/kgotso").text == "hey kgotso"
+
+
+# def test_custom_exception_handler(sego, client):
+#     def on_exception(req, resp, exc):
+#         resp.text = "AttributeErrorHappened"
+#
+#     sego.add_exception_handler(on_exception)
+#
+#     @sego.route("/")
+#     def index(req, resp):
+#         raise AttributeError()
+#
+#     response = client.get("http://segotestserver/")
+#
+#     assert response.text == "AttributeErrorHappened"
