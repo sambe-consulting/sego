@@ -62,7 +62,7 @@ class Route:
                                    Verb.HTTP_POST, \
                                    Verb.HTTP_PUT, \
                                    Verb.HTTP_DELETE], "Route HTTP verbs must be defined using Sego.Routing.Verb.HTTP_<verb>"
-        route["verbs"] = self.get_verb()
+        route["verb"] = self.get_verb()
         assert isinstance(self.get_controller(), str), "Route controller must be of type str"
         route["controller"] = self.get_controller()
         assert isinstance(self.get_action(), str), "Route action must be of type str"

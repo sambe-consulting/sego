@@ -71,7 +71,7 @@ class Sego:
 
     def handles_request(self, request):
         response = Response()
-        route_parameters, kwargs = self.router.find_route(request_path=request.path)
+        route_parameters,kwargs = self.router.find_route(request=request)
         if route_parameters is not None:
             handler = self.router.build_handler(route_parameters=route_parameters)
             handler(request, response, **kwargs)
