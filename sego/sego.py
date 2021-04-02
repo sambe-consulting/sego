@@ -84,7 +84,7 @@ class Sego:
                 handler = self.router.build_handler(route_parameters=route_parameters)
                 handler(request, response, **kwargs)
             else:
-                self.default_response(response)
+                raise NotFoundException404("Page not found")
         except Exception as e:
             self.handle_exceptions(request, response, e)
         return response
