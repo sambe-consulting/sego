@@ -14,6 +14,7 @@ from confo.Confo import Confo
 import confo.Backends as BE
 from .Exceptions import *
 import uuid, os
+import inspect
 
 
 @singleton
@@ -25,6 +26,8 @@ class Sego:
             application_name = str(uuid.uuid4())
         self.application_name = application_name
         self.view_environment = None
+        self.exception_handlers = {}
+        self.app_exception = None
 
     def __call__(self, environ, start_response):
         request = Request(environ)
@@ -37,11 +40,15 @@ class Sego:
     def route(self, route):
 
         def wrapper(handler):
-            action = str(handler.__name__)
-            route.set_action(action=action)
-            route.set_controller(controller="SegoBaseController")
-            self.configuration_manager.set("dynamic_routes", action, id(handler))
-            self.router.add_route(route)
+            try:
+                action = str(handler.__name__)
+                route.set_action(action=action)
+                route.set_controller(controller="SegoBaseController")
+                self.configuration_manager.set("dynamic_routes", action, id(handler))
+                self.router.add_route(route)
+            except Exception as e:
+                self.handle_exceptions({}, {}, e)
+
             return handler
 
         return wrapper
@@ -71,14 +78,43 @@ class Sego:
 
     def handles_request(self, request):
         response = Response()
-        route_parameters,kwargs = self.router.find_route(request=request)
-        if route_parameters is not None:
-            handler = self.router.build_handler(route_parameters=route_parameters)
-            handler(request, response, **kwargs)
-        else:
-            self.default_response(response)
-
+        route_parameters, kwargs = self.router.find_route(request=request)
+        try:
+            if route_parameters is not None:
+                handler = self.router.build_handler(route_parameters=route_parameters)
+                handler(request, response, **kwargs)
+            else:
+                self.default_response(response)
+        except Exception as e:
+            self.handle_exceptions(request, response, e)
         return response
+
+    def add_exception_handler(self, exception, handler, overwrite=False):
+        if inspect.isclass(exception):
+            exception = exception.__name__
+
+        if exception in self.exception_handlers:
+            if overwrite:
+                self.exception_handlers[exception] = handler
+            else:
+                raise Exception("Exception already registered, to force the registration, set 'overwrite' to True")
+        else:
+            self.exception_handlers[exception] = handler
+
+    def register_exception_handlers(self, exception_path):
+        self.app_exception = __import__(exception_path)
+
+    def get_exception_handlers(self):
+        return self.exception_handlers
+
+    def handle_exceptions(self, request, response, exception):
+        exception_name = exception.__class__.__name__
+
+        if exception_name in self.exception_handlers:
+            handler = self.exception_handlers[exception_name]
+            handler(request, response, exception)
+        else:
+            raise exception
 
     def test_session(self, base_url="http://segotestserver"):
         session = RequestsSession()
