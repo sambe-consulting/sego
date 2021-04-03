@@ -17,18 +17,30 @@ from sego.Exceptions import *
 def test_basic_route_adding(router):
     router.add_route(Route("test", Verb.HTTP_GET, "TestController", "index", "/test/"))
 
+def test_custom_exception_handler(sego, client):
+    def on_exception(req, resp, exc):
+        resp.text = "AttributeErrorHappened"
 
-# def test_template(sego, client,views):
-#     @sego.route(Route("html", Verb.HTTP_GET, "", "", "/html"))
-#     def html_handler(req, resp):
-#         # views = sego.get_view_environment()
-#         resp.body = views.render_view("tests/index.html", context={"title": "Some Title", "name": "Some Name"}).encode()
-#
-#     response = client.get("http://segotestserver/html")
-#
-#     assert "text/html" in response.headers["Content-Type"]
-#     assert "Some Title" in response.text
-#     assert "Some Name" in response.text
+    sego.add_exception_handler(AttributeError,on_exception)
+
+    @sego.route(Route("custom_exception", Verb.HTTP_GET, "", "", "/custom_exception"))
+    def index(req, resp):
+        raise AttributeError()
+
+    response = client.get("http://segotestserver/custom_exception")
+    assert response.text == "AttributeErrorHappened"
+
+def test_template(views,sego, client):
+    @sego.route(Route("html", Verb.HTTP_GET, "", "", "/html"))
+    def html_handler(req, resp):
+        # views = sego.get_view_environment()
+        resp.body = views.render_view("tests/index.html", context={"title": "Some Title", "name": "Some Name"}).encode()
+
+    response = client.get("http://segotestserver/html")
+
+    assert "text/html" in response.headers["Content-Type"]
+    assert "Some Title" in response.text
+    assert "Some Name" in response.text
 
 
 def test_route_overlap_throws_exception(router):
@@ -37,11 +49,11 @@ def test_route_overlap_throws_exception(router):
         router.add_route(Route("home", Verb.HTTP_GET, "HomeController", "index", "/home"))
 
 
-def test_default_404_response(client):
+def test_default_404_response(client,exception_handlers):
     response = client.get("http://segotestserver/doesnotexist")
 
-    # assert response.status_code == 404
-    # assert response.text == "Not found."
+    assert response.status_code == 404
+    assert response.text == "Not Found"
 
 
 def test_client_can_send_requests(sego, client):
@@ -63,16 +75,3 @@ def test_parameterized_route(sego, client):
     assert client.get("http://segotestserver/kgotso").text == "hey kgotso"
 
 
-# def test_custom_exception_handler(sego, client):
-#     def on_exception(req, resp, exc):
-#         resp.text = "AttributeErrorHappened"
-#
-#     sego.add_exception_handler(on_exception)
-#
-#     @sego.route("/")
-#     def index(req, resp):
-#         raise AttributeError()
-#
-#     response = client.get("http://segotestserver/")
-#
-#     assert response.text == "AttributeErrorHappened"

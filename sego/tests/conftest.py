@@ -4,7 +4,6 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 parentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
-print(parentdir)
 import pytest
 from sego.sego import Sego
 from sego.Routing.Router import Router
@@ -13,10 +12,11 @@ from sego.Routing.Verb import Verb
 import shutil
 from sego.Views.Views import Views
 
-from sego.Exceptions import *
+from sego.Exceptions.ClientErrorResponses import NotFoundException404
+from sego.Views.Views import Views
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def sego():
     os.mkdir("Configs/")
     os.mkdir("Configs/systemA")
@@ -25,7 +25,6 @@ def sego():
     sego.register_configurations(credentials=credentials)
     yield sego
     shutil.rmtree("Configs/")
-
 
 @pytest.fixture
 def route():
@@ -45,6 +44,32 @@ def client(sego):
 
 @pytest.fixture
 def views(sego):
+    markup = """
+    <html>
+         <header>
+             <title>{{ title }}</title>
+         </header>
+         <body>
+         <h1>The name of the framework is {{ name }}</h1>
+         </body>
+    </html>
+    """
+    os.mkdir("app")
+    os.mkdir("app/templates")
+    os.mkdir("app/templates/tests")
+    with open("app/templates/tests/index.html","w+") as f:
+        f.write(markup)
     views = Views(view_path="app/templates/")
     sego.register_views(views)
-    return views
+    yield views
+    shutil.rmtree("app/")
+
+
+@pytest.fixture
+def exception_handlers(sego):
+    def NotFoundHandler(request, response, exception):
+        views = sego.get_view_environment()
+        response.status_code = 404
+        response.text = "Not Found"
+    sego.add_exception_handler(NotFoundException404, NotFoundHandler)
+
