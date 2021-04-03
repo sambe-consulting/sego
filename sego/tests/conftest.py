@@ -20,11 +20,15 @@ from sego.Views.Views import Views
 def sego():
     os.mkdir("Configs/")
     os.mkdir("Configs/systemA")
+    os.mkdir("public")
     sego = Sego()
     credentials = {"config_path":"Configs"}
     sego.register_configurations(credentials=credentials)
+    static_files_dir = "public"
+    sego.register_static_files(static_dir=static_files_dir)
     yield sego
     shutil.rmtree("Configs/")
+    shutil.rmtree("public")
 
 @pytest.fixture
 def route():
