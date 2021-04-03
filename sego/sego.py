@@ -10,11 +10,13 @@ from requests import Session as RequestsSession
 from singleton_decorator import singleton
 from webob import Request, Response
 from .Routing.Router import Router
+from whitenoise import WhiteNoise
 from confo.Confo import Confo
 import confo.Backends as BE
 from .Exceptions import *
 import uuid, os
 import inspect
+
 
 
 @singleton
@@ -28,10 +30,14 @@ class Sego:
         self.view_environment = None
         self.exception_handlers = {}
         self.app_exception = None
+        self.static_file_manager = None
 
     def __call__(self, environ, start_response):
+        return self.static_file_manager(environ, start_response)
+
+    def wsgi_app(self, environ, start_response):
         request = Request(environ)
-        response = self.handles_request(request)
+        response = self.handle_request(request)
         return response(environ, start_response)
 
     def get_application_name(self):
@@ -76,7 +82,7 @@ class Sego:
         response.status_code = 404
         response.text = "Not found."
 
-    def handles_request(self, request):
+    def handle_request(self, request):
         response = Response()
         route_parameters, kwargs = self.router.find_route(request=request)
         try:
@@ -115,6 +121,9 @@ class Sego:
             handler(request, response, exception)
         else:
             raise exception
+
+    def register_static_files(self,static_dir):
+        self.static_file_manager = WhiteNoise(self.wsgi_app, root=static_dir)
 
     def test_session(self, base_url="http://segotestserver"):
         session = RequestsSession()
