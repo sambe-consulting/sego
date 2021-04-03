@@ -24,7 +24,7 @@ with open(HERE + '/requirements.txt') as f:
         long_description_content_type="text/markdown",
         long_description=README,
         url="https://github.com/sambe-consulting/sego",
-        author="The nerdy dad (kabelo masemola)",
+        author="Sambe Consulting",
         author_email="development@sambe.co.za",
         license="Apache License 2.0",
         classifiers=[
