@@ -1,7 +1,7 @@
 # ************************************************************************#
 # Title:                    Sego  API                                     #
 # Description:              This class is the main interface into  Sego   #
-# Author:                   Sambe Consulting <development@sambe.co.za     #
+# Author:                   Sambe Consulting <development@sambe.co.za>    #
 # Original Date:            10 March 2021                                 #
 # Version:                  0.1.0                                         #
 # ************************************************************************#
