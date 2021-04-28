@@ -12,6 +12,8 @@ from sego.Routing.Router import Router
 from sego.Routing.Route import Route
 from sego.Routing.Verb import Verb
 from sego.Exceptions import *
+from sego.Middlerware import Middleware
+
 
 
 def test_basic_route_adding(router):
@@ -59,7 +61,7 @@ def test_default_404_response(client,exception_handlers):
 def test_client_can_send_requests(sego, client):
     RESPONSE_TEXT = "SEGO IS ALIVE"
 
-    @sego.route(Route(name="client_test", verbs=Verb.HTTP_GET, controller="", action="", url="/client_test/"))
+    @sego.route(Route(name="client_test", verb=Verb.HTTP_GET, controller="", action="", url="/client_test/"))
     def test_handler(req, resp):
         resp.text = RESPONSE_TEXT
 
@@ -75,3 +77,20 @@ def test_parameterized_route(sego, client):
     assert client.get("http://segotestserver/kgotso").text == "hey kgotso"
 
 
+# def test_middleware_methods_are_called(sego, client):
+#     process_request_called = False
+#     process_response_called = False
+#
+#     class CallMiddlewareMethods(Middleware):
+#         def __init__(self, app):
+#             super().__init__(app)
+#
+#         def process_request(self, req):
+#             nonlocal process_request_called
+#             process_request_called = True
+#
+#         def process_response(self, req, resp):
+#             nonlocal process_response_called
+#             process_response_called = True
+#
+#     sego.add_middleware(CallMiddlewareMethods)
