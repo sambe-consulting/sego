@@ -10,50 +10,119 @@ from .Verb import Verb
 from ..Exceptions import *
 
 class Route:
-    def __init__(self, name: str = None, verbs: int = None, controller: str = None, action: str = None,
+    def __init__(self, name: str = None, verb: int = None, controller: str = None, action: str = None,
                  url: str = None):
         self.name = name
-        self.verbs = verbs
+        self.verb = verb
         self.controller = controller
         self.action = action
         self.url = url
+        self.middleware = {}
 
-    def set_name(self, name):
+    def set_name(self, name) -> object:
+        """
+        This method sets the name of the route object
+        :param name:
+        :return: self / Route
+        """
         self.name = name
         return self
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """
+        This method returns the name of the route object
+        :return: name
+        """
         return self.name
 
-    def set_verb(self, verb):
+    def set_verb(self, verb) -> object:
+        """
+        This method sets the http verbs used by the route
+        :param verb:
+        :return: self / Route
+        """
         self.verbs = list(set(self.verbs.append(verb)))
         return self
 
-    def get_verb(self):
-        return self.verbs
+    def get_verb(self) -> int:
+        """
+        This method returns the http verbs used by the current route
+        :return: verbs
+        """
+        return self.verb
 
-    def set_controller(self, controller):
+    def set_controller(self, controller) -> object:
+        """
+        This method sets the controller which defines the action for this route
+        :param controller:
+        :return: self / Route
+        """
         self.controller = controller
         return self
 
-    def get_controller(self):
+    def get_controller(self) -> str:
+        """
+        This method returns the controller for this route
+        :return: controller
+        """
         return self.controller
 
-    def set_action(self, action):
+    def set_action(self, action) -> object:
+        """
+        This method sets the action to execute for this route
+        :param action:
+        :return: self / Route
+        """
         self.action = action
         return self
 
-    def get_action(self):
+    def get_action(self) -> str:
+        """
+        This method returns the action for this route
+        :return: action
+        """
         return self.action
 
-    def set_url(self, url):
+    def set_middleware(self,middleware : list) -> object:
+        """
+        This method sets the list of middleware to be executed before and after the http request
+        is handled by the controller
+        :param middleware:
+        :return: self / Route
+        """
+        self.middleware = middleware
+        return self
+
+    def get_middleware(self) -> dict:
+        """
+        This method returns middleware
+        :return:  middleware
+        """
+        return self.middleware
+
+
+    def set_url(self, url) -> object:
+        """
+        This method sets the URL associated with this route
+        :param url:
+        :return: self / Route
+        """
         self.url = url
         return self
 
-    def get_url(self):
+    def get_url(self) -> str:
+        """
+        This method returns the URL for the route
+        :return: url
+        """
         return self.url
 
-    def get_route(self):
+    def get_route(self) -> dict:
+        """
+        This method returns a dictionary representation of the route, this allows external
+        code to pull the internal state of the route for routing purposes
+        :return: route : dict
+        """
         route = {}
         assert isinstance(self.get_name(), str), "Route name must be of type str"
         route["name"] = self.get_name()
