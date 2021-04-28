@@ -14,11 +14,22 @@ import os
 @singleton
 class Views(object):
     def __init__(self, view_path):
+        """
+        The Constructor takes in a path where jinja templates are stored, then uses it to
+        create a jinja templating environment
+        :param view_path:
+        """
         self.view_environment = Environment(
             loader=FileSystemLoader(os.path.abspath(view_path))
         )
 
     def render_view(self, view_name, context=None):
+        """
+        This method is used at the controller layer to render views
+        :param view_name:
+        :param context:
+        :return:
+        """
         if context is None:
             context = {}
         return self.view_environment.get_template(view_name).render(**context)

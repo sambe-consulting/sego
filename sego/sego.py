@@ -71,6 +71,13 @@ class Sego:
         """
 
         def wrapper(handler):
+            """
+            To make sure that the Flask style routes are can be executed by the normal router
+            the route is dynamically updated by adding 'SegoBaseController' and the name of the wrapped
+            method to the route.The we use the configuration manager to store the object ID for later usage
+            :param handler:
+            :return:
+            """
             try:
                 action = str(handler.__name__)
                 route.set_action(action=action)
