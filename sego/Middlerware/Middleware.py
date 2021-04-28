@@ -7,5 +7,25 @@
 # Version:                  0.1.0                                         #
 # ************************************************************************#
 
+from webob import Request, Response
+
+
 class Middleware:
+    PREPROCESS = 1
+    POSTPROCESS = 2
+
+    def process_request(self, request: Request):
+        """
+            This method is meant for processing requests in the middleware layer
+            :param request:
+            :return: request : webob.Request
+        """
+        pass
+
+    def process_response(self, response: Response):
+        """
+
+            :param response:
+            :return: response: webob.Response
+        """
         pass

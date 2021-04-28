@@ -41,7 +41,7 @@ class Route:
         :param verb:
         :return: self / Route
         """
-        self.verbs = list(set(self.verbs.append(verb)))
+        self.verbs = verb
         return self
 
     def get_verb(self) -> int:
@@ -138,5 +138,7 @@ class Route:
         route["action"] = self.get_action()
         assert isinstance(self.get_url(), str), "Route url must be of type str"
         route["url"] = self.get_url()
+        assert  isinstance(self.get_middleware(),dict)," Middleware must be of type dict"
+        route["middleware"] = self.get_middleware()
 
         return route
