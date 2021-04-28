@@ -19,6 +19,8 @@ class Route:
         self.action = action
         self.url = url
         self.middleware = {}
+        self.middleware["pre_process"] = []
+        self.middleware["post_process"] = []
 
     def set_name(self, name) -> object:
         """
