@@ -22,10 +22,11 @@ class Middleware:
         """
         pass
 
-    def process_response(self, response: Response):
-        """
-
-            :param response:
-            :return: response: webob.Response
-        """
-        pass
+    def process_response(self,  request: Request, response: Response):
+       """
+        This method is meant for processing responses in the middleware layer
+        :param request:
+        :param response:
+        :return:
+       """
+       pass

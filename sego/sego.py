@@ -135,7 +135,6 @@ class Sego:
         self.configuration_manager.create_namespace(self.application_name)
         self.configuration_manager.use_namespace(self.application_name)
 
-
     def handle_request(self, request):
         """
         This method handles all requests, by using the Sego Router object
@@ -144,6 +143,9 @@ class Sego:
         """
         response = Response()
         route_parameters, kwargs = self.router.find_route(request=request)
+        route_name = route_parameters["name"]
+
+        self.router.process_middleware(route_name=route_name,stage=Middleware.PREPROCESS,request=request,response=response)
         try:
             if route_parameters is not None:
                 handler = self.router.build_handler(route_parameters=route_parameters)
@@ -152,6 +154,7 @@ class Sego:
                 raise NotFoundException404("Page not found")
         except Exception as e:
             self.handle_exceptions(request, response, e)
+        self.router.process_middleware(route_name=route_name,stage=Middleware.POSTPROCESS,request=request,response=response)
         return response
 
     def add_exception_handler(self, exception, handler, overwrite=False):
@@ -217,6 +220,9 @@ class Sego:
         :return:
         """
         self.static_file_manager = WhiteNoise(self.wsgi_app, root=static_dir)
+
+    def process_middleware(self):
+        pass
 
     def test_session(self, base_url="http://segotestserver"):
         """
