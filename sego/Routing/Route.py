@@ -84,19 +84,19 @@ class Route:
         """
         return self.action
 
-    def set_middleware(self,middlewares : list) -> object:
-        """
+    def set_middleware(self,stage:int ,middleware_list : list) -> object:
+       """
         This method sets the list of middleware to be executed before and after the http request
         is handled by the controller
-        :param middlewares:
-        :return: self / Route
-        """
-        for middleware,stage in middlewares:
-            if stage == Middleware.PREPROCESS:
-                self.middleware["pre_process"] = middleware
-            elif stage == Middleware.POSTPROCESS:
-                self.middleware["post_process"] = middleware
-            return self
+       :param stage:
+       :param middleware_list:
+       :return: self / Route
+       """
+       if stage == Middleware.PREPROCESS:
+           self.middleware["pre_process"] = self.middleware["pre_process"]+middleware_list
+       elif stage == Middleware.POSTPROCESS:
+           self.middleware["post_process"] = self.middleware["post_process"]+ middleware_list
+       return self
 
     def get_middleware(self) -> dict:
         """
