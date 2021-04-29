@@ -149,9 +149,9 @@ class Sego:
             if route_parameters is not None:
                 route_name = route_parameters["name"]
                 handler = self.router.build_handler(route_parameters=route_parameters)
-                self.router.process_middleware(route_name=route_name,stage=Middleware.PREPROCESS,request=request,response=response)
+                # self.router.process_middleware(route_name=route_name,stage=Middleware.PREPROCESS,request=request,response=response)
                 handler(request, response, **kwargs)
-                self.router.process_middleware(route_name=route_name,stage=Middleware.POSTPROCESS,request=request,response=response)
+                # self.router.process_middleware(route_name=route_name,stage=Middleware.POSTPROCESS,request=request,response=response)
             else:
                 raise NotFoundException404("Page not found")
         except Exception as e:

@@ -39,7 +39,7 @@ def test_template(views,sego, client):
         resp.body = views.render_view("tests/index.html", context={"title": "Some Title", "name": "Some Name"}).encode()
 
     response = client.get("http://segotestserver/html")
-
+    print(response)
     assert "text/html" in response.headers["Content-Type"]
     assert "Some Title" in response.text
     assert "Some Name" in response.text
