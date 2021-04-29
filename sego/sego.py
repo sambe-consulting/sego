@@ -8,7 +8,7 @@
 from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
 from requests import Session as RequestsSession
 from singleton_decorator import singleton
-from webob import Request, Response
+from webob import Request
 from .Routing.Router import Router
 from whitenoise import WhiteNoise
 from confo.Confo import Confo
@@ -17,6 +17,7 @@ from .Exceptions import *
 from .Middleware import *
 import uuid, os
 import inspect
+from .Response.Response import Response as SegoResponse
 
 
 
@@ -157,7 +158,7 @@ class Sego:
         :param request:
         :return: webob.Response
         """
-        response = Response()
+        response = SegoResponse()
         route_parameters = self.route_parameters
         kwargs = self.session_kwargs
 
