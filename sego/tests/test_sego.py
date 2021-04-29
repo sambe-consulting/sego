@@ -12,7 +12,7 @@ from sego.Routing.Router import Router
 from sego.Routing.Route import Route
 from sego.Routing.Verb import Verb
 from sego.Exceptions import *
-from sego.Middlerware import Middleware
+from sego.Middleware import Middleware
 
 
 
