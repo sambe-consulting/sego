@@ -14,7 +14,7 @@ from whitenoise import WhiteNoise
 from confo.Confo import Confo
 import confo.Backends as BE
 from .Exceptions import *
-from .Middlerware import *
+from .Middleware import *
 import uuid, os
 import inspect
 
@@ -33,6 +33,7 @@ class Sego:
         self.app_exception = None
         self.static_file_manager = None
         self.middleware_manager = MiddlewareManager()
+        self.middleware = None
 
     def __call__(self, environ, start_response):
         """
@@ -222,8 +223,8 @@ class Sego:
         """
         self.static_file_manager = WhiteNoise(self.wsgi_app, root=static_dir)
 
-    def process_middleware(self):
-        pass
+    def register_middleware(self,middleware):
+        self.middleware = __import__(middleware)
 
     def test_session(self, base_url="http://segotestserver"):
         """

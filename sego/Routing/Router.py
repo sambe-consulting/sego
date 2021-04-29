@@ -13,7 +13,6 @@ from parse import parse
 from singleton_decorator import singleton
 from confo.Confo import Confo
 import ctypes
-from ..Middlerware import *
 
 
 @singleton
@@ -25,11 +24,6 @@ class Router:
         self.routes = []
         self.urls = []
         self.configuration_manager = Confo()
-        self.middleware_manager = MiddlewareManager()
-        self.pre_middleware = []
-        self.route_pre_middleware = {}
-        self.post_middleware = []
-        self.route_post_middleware = {}
 
     def add_route(self, route: Route):
         """
@@ -41,18 +35,6 @@ class Router:
         self.validate(route_parameters=route_parameter)
         self.routes.append(route_parameter)
         self.urls.append(route_parameter["url"].rstrip("/"))
-
-        for middleware in enumerate(route_parameter["middleware"]["pre_process"]):
-            if self.middleware_manager.validate(middleware[1]):
-                self.route_pre_middleware[route_parameter["name"]].append(middleware)
-            else:
-                raise MiddlewareNotFound(" Route Middleware: %s is no registered "%middleware[1])
-
-        for middleware in enumerate(route_parameter["middleware"]["post_process"]):
-            if self.middleware_manager.validate(middleware[1]):
-                self.route_post_middleware[route_parameter["name"]].append(middleware)
-            else:
-                raise MiddlewareNotFound(" Route Middleware: %s is no registered "%middleware[1])
 
     def validate(self, route_parameters: dict):
         """
@@ -72,6 +54,7 @@ class Router:
         :param request:
         :return:
         """
+
         def method_validator(request_method, route_method):
             """
             This method is used to validate if HTTP verbs match
@@ -95,7 +78,8 @@ class Router:
             else:
                 parse_result = parse(route["url"].rstrip("/"), request_path.rstrip("/"))
                 if parse_result is not None:
-                    return (route, parse_result.named) if method_validator(request.method, route["verb"]) else (None, None)
+                    return (route, parse_result.named) if method_validator(request.method, route["verb"]) else (
+                    None, None)
 
         return None, None
 
@@ -147,54 +131,3 @@ class Router:
         :return: routes
         """
         return self.routes
-
-    def set_preprocess_middleware(self,middleware_list):
-        """
-        This method registers global middleware for pre processing
-        :param middleware_list:
-        :return:
-        """
-        for middleware in enumerate(middleware_list):
-            if self.middleware_manager.validate(middleware[1]):
-                self.pre_middleware.append(middleware)
-            else:
-                raise MiddlewareNotFound("Middleware: %s is no registered "%middleware[1])
-
-    def set_postprocess_middleware(self,middleware_list):
-        """
-        This method registers global middleware for postprocessing
-        :param middleware_list:
-        :return:
-        """
-        for middleware in enumerate(middleware_list):
-            if self.middleware_manager.validate(middleware[1]):
-                self.post_middleware.append(middleware)
-            else:
-                raise MiddlewareNotFound("Middleware: %s is no registered "%middleware[1])
-
-    def clean_middleware(self,route_name: str,stage: int):
-        if stage == Middleware.PREPROCESS:
-            try:
-                priority_max = max(self.pre_middleware)
-                for index,value in self.route_pre_middleware[route_name]:
-                    self.pre_middleware.append((priority_max+index,value))
-            except:
-                pass
-        elif stage == Middleware.POSTPROCESS:
-            try:
-                priority_max = max(self.post_middleware)
-                for index,value in self.route_post_middleware[route_name]:
-                    self.post_middleware.append((priority_max+index,value))
-            except:
-                pass
-
-    def process_middleware(self,route_name:str,stage:int,request: Request,response: Response):
-
-        self.clean_middleware(route_name,stage)
-        if stage == Middleware.PREPROCESS:
-            self.middleware_manager.run(self.pre_middleware,request,response)
-        elif stage == Middleware.POSTPROCESS:
-            self.middleware_manager.run(self.post_middleware,request,response)
-
-
-

@@ -8,7 +8,7 @@
 
 from .Verb import Verb
 from ..Exceptions import *
-from ..Middlerware import Middleware
+from ..Middleware import Middleware
 
 class Route:
     def __init__(self, name: str = None, verb: int = None, controller: str = None, action: str = None,
@@ -18,9 +18,7 @@ class Route:
         self.controller = controller
         self.action = action
         self.url = url
-        self.middleware = {}
-        self.middleware["pre_process"] = []
-        self.middleware["post_process"] = []
+        self.middleware = {"pre_process": [], "post_process": []}
 
     def set_name(self, name) -> object:
         """
@@ -86,18 +84,19 @@ class Route:
         """
         return self.action
 
-    def set_middleware(self,middleware : list,stage: int ) -> object:
+    def set_middleware(self,middlewares : list) -> object:
         """
         This method sets the list of middleware to be executed before and after the http request
         is handled by the controller
-        :param middleware:
+        :param middlewares:
         :return: self / Route
         """
-        if stage == Middleware.PREPROCESS:
-            self.middleware["pre_process"] = middleware
-        elif stage == Middleware.POSTPROCESS:
-            self.middleware["post_process"] = middleware
-        return self
+        for middleware,stage in middlewares:
+            if stage == Middleware.PREPROCESS:
+                self.middleware["pre_process"] = middleware
+            elif stage == Middleware.POSTPROCESS:
+                self.middleware["post_process"] = middleware
+            return self
 
     def get_middleware(self) -> dict:
         """
