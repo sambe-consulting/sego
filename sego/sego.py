@@ -6,24 +6,27 @@
 # Version:                  0.1.0                                         #
 # ************************************************************************#
 from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
+from .Response.Response import Response as SegoResponse
 from requests import Session as RequestsSession
+from orator import DatabaseManager,Schema,Model
 from singleton_decorator import singleton
-from webob import Request
 from .Routing.Router import Router
 from whitenoise import WhiteNoise
 from confo.Confo import Confo
 import confo.Backends as BE
+from webob import Request
 from .Exceptions import *
 from .Middleware import *
 import uuid, os
 import inspect
-from .Response.Response import Response as SegoResponse
+
 
 
 
 @singleton
 class Sego:
     def __init__(self, application_name=None):
+        self.database = None
         self.router = Router()
         self.configuration_manager = Confo()
         if application_name == None:
@@ -240,6 +243,12 @@ class Sego:
 
     def register_middleware(self,middleware):
         self.middleware = __import__(middleware)
+
+    def register_database(self):
+        config = self.configuration_manager.get('database')
+        self.database = DatabaseManager(config)
+        self.schema = Schema(self.database)
+        Model.set_connection_resolver(self.database)
 
     def test_session(self, base_url="http://segotestserver"):
         """

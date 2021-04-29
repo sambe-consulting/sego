@@ -101,3 +101,4 @@ widgetsnbextension==3.5.1
 wrapt==1.12.1
 yapf==0.31.0
 zipp==3.4.1
+orator==0.9.9
