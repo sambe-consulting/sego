@@ -8,16 +8,51 @@
 # ************************************************************************#
 
 from .Middleware import Middleware
+from .Middleware import Middleware as SegoMiddleware
 from ..Exceptions.MiddlewareException import *
 from singleton_decorator import singleton
 from webob import Request, Response
-
+from ..Routing.Route import *
 
 @singleton
 class MiddlewareManager(object):
 
     def __init__(self):
         self.global_middleware = {}
+        self.pre_process_middleware = []
+        self.post_process_middleware = []
+
+    def load(self, middleware_list):
+        """
+        This method is used to load middleware into the system
+        :param middleware_list:
+        :return:
+        """
+        overwrite = False
+        for middleware in middleware_list:
+            if "overwrite" in middleware:
+                if middleware["overwrite"] in [True, False]:
+                    overwrite = middleware["overwrite"]
+                else:
+                    raise MiddlewareOverwriteMustBeBoolean()
+
+            if "name" in middleware:
+                if isinstance(middleware["name"], str):
+                    middleware_name = middleware["name"]
+                else:
+                    raise MiddlewareNameMustBeString()
+            else:
+                raise MiddlewareMustHaveName()
+
+            if "middleware" in middleware:
+                if issubclass(middleware["middleware"], SegoMiddleware):
+                    middlewareObject = middleware["middleware"]
+                else:
+                    raise MiddlewareMustExtend()
+            else:
+                raise SegoBaseException("All dictionaries must have middleware class ")
+
+            self.add(middleware_name=middleware_name, middleware=middlewareObject, overwrite=overwrite)
 
     def add(self, middleware_name: str, middleware: Middleware, overwrite=False):
         """
@@ -35,6 +70,32 @@ class MiddlewareManager(object):
                 self.global_middleware[middleware_name] = middleware
             else:
                 raise MiddlewareAlreadyRegisteredException()
+
+    def register(self, stage: int, middleware_names: list):
+        main_error = "Middleware %s was not loaded into the global middleware registry, use MiddlewareManager.load(self, middleware_list)"
+
+        if stage == Middleware.PREPROCESS:
+            for middleware_name in middleware_names:
+                if self.validate(middleware_name):
+                    if middleware_name not in self.pre_process_middleware:
+                        self.pre_process_middleware.append(middleware_name)
+                    else:
+                        raise SegoBaseException("Middleware %s is registered more than once"% str(middleware_name))
+                else:
+                    raise SegoBaseException(main_error%middleware_name)
+
+        elif stage == Middleware.POSTPROCESS:
+            for middleware_name in middleware_names:
+                if self.validate(middleware_name):
+                    if middleware_name not in self.post_process_middleware:
+                        self.post_process_middleware.append(middleware_name)
+                    else:
+                        raise SegoBaseException("Middleware %s is registered more than once"% str(middleware_name))
+                else:
+                    raise SegoBaseException(main_error%middleware_name)
+
+        else:
+            raise SegoBaseException("Use 'Middleware.PREPROCESS or Middleware.POSTPROCESS for the stage argument")
 
     def get(self, middleware_name):
         """
@@ -63,11 +124,28 @@ class MiddlewareManager(object):
         :return: TRUE/FALSE
         """
         exists = False
-        if middleware_name in self.global_middleware:
-            exists = True
+
+        for entry in self.global_middleware:
+            if middleware_name.strip().lower() == entry.strip().lower():
+                exists = True
+                break
         return exists
 
-    def run(self, middleware_list: list, request: Request, response: Response):
+    def process_middleware(self,stage :int ,route,request : Request = None,response : Response = None):
+        if stage == Middleware.PREPROCESS:
+            route_middleware = route["middleware"]["pre_process"]
+            self.run(stage=stage,middleware_list=self.pre_process_middleware,request=request,response=response)
+            self.run(stage=stage,middleware_list=route_middleware,request=request,response=response)
+        elif stage == Middleware.POSTPROCESS:
+            route_middleware = route["middleware"]["post_process"]
+            self.run(stage=stage,middleware_list=self.post_process_middleware,request=request,response=response)
+            self.run(stage=stage,middleware_list=route_middleware,request=request,response=response)
+        else:
+            raise SegoBaseException("Use 'Middleware.PREPROCESS or Middleware.POSTPROCESS for the stage argument")
+
+
+
+    def run(self,stage:int, middleware_list: list, request: Request, response: Response):
         """
         This method instantiates each middleware class in list the runs
         :param middleware_list:
@@ -75,9 +153,13 @@ class MiddlewareManager(object):
         :param response:
         :return:
         """
-        for middleware_tuple in middleware_list:
-            middleware = middleware_tuple[1]
-            middleware_class = self.global_middleware[middleware]
-            middleware_instance = middleware_class()
-            middleware_instance.process_request(request)
-            middleware_instance.process_respone(response)
+
+        for middleware in middleware_list:
+
+            instance = self.global_middleware[middleware]()
+            if stage == Middleware.PREPROCESS:
+                print("Pre process middleware")
+                instance.process_request(request=request)
+            elif stage == Middleware.POSTPROCESS:
+                print("Post process middleware")
+                instance.process_response(request=request, response=response)

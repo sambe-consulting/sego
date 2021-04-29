@@ -34,6 +34,8 @@ class Sego:
         self.static_file_manager = None
         self.middleware_manager = MiddlewareManager()
         self.middleware = None
+        self.route_parameters = None
+        self.session_kwargs = None
 
     def __call__(self, environ, start_response):
         """
@@ -52,8 +54,20 @@ class Sego:
         :param start_response:
         :return: response : webob.Response
         """
+
         request = Request(environ)
+        self.route_parameters, self.session_kwargs = self.router.find_route(request=request)
+        self.middleware_manager.process_middleware(stage=Middleware.PREPROCESS,\
+                                                   route=self.route_parameters,\
+                                                   request=request,\
+                                                   response=None)
+
         response = self.handle_request(request)
+
+        self.middleware_manager.process_middleware(stage=Middleware.POSTPROCESS,\
+                                                   route=self.route_parameters,\
+                                                   request=request,\
+                                                   response=response)
         return response(environ, start_response)
 
     def get_application_name(self) -> str:
@@ -143,7 +157,9 @@ class Sego:
         :return: webob.Response
         """
         response = Response()
-        route_parameters, kwargs = self.router.find_route(request=request)
+        route_parameters = self.route_parameters
+        kwargs = self.session_kwargs
+
 
         try:
             if route_parameters is not None:
