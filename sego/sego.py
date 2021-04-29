@@ -57,14 +57,15 @@ class Sego:
 
         request = Request(environ)
         self.route_parameters, self.session_kwargs = self.router.find_route(request=request)
-        self.middleware_manager.process_middleware(stage=Middleware.PREPROCESS,\
-                                                   route=self.route_parameters,\
-                                                   request=request,\
-                                                   response=None)
+        if self.route_parameters is not None:
+            self.middleware_manager.process_middleware(stage=Middleware.PREPROCESS,\
+                                                       route=self.route_parameters,\
+                                                       request=request,\
+                                                       response=None)
 
         response = self.handle_request(request)
-
-        self.middleware_manager.process_middleware(stage=Middleware.POSTPROCESS,\
+        if self.route_parameters is not None:
+            self.middleware_manager.process_middleware(stage=Middleware.POSTPROCESS,\
                                                    route=self.route_parameters,\
                                                    request=request,\
                                                    response=response)
@@ -163,11 +164,8 @@ class Sego:
 
         try:
             if route_parameters is not None:
-                route_name = route_parameters["name"]
                 handler = self.router.build_handler(route_parameters=route_parameters)
-                # self.router.process_middleware(route_name=route_name,stage=Middleware.PREPROCESS,request=request,response=response)
                 handler(request, response, **kwargs)
-                # self.router.process_middleware(route_name=route_name,stage=Middleware.POSTPROCESS,request=request,response=response)
             else:
                 raise NotFoundException404("Page not found")
         except Exception as e:
