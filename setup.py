@@ -19,7 +19,7 @@ with open(HERE + '/requirements.txt') as f:
     required = f.read().splitlines()
     setup(
         name="sego",
-        version="0.1.0.6",
+        version="0.1.0.7",
         description="A web and micro-service framework for data analysts",
         long_description_content_type="text/markdown",
         long_description=README,
