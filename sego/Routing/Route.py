@@ -8,7 +8,7 @@
 
 from .Verb import Verb
 from ..Exceptions import *
-from ..Middleware import Middleware
+from ..Middleware import Middleware,MiddlewareManager
 
 class Route:
     def __init__(self, name: str = None, verb: int = None, controller: str = None, action: str = None,
@@ -19,6 +19,8 @@ class Route:
         self.action = action
         self.url = url
         self.middleware = {"pre_process": [], "post_process": []}
+        self.middleware_manager = MiddlewareManager()
+        self.excluded_middleware = {"pre_process":[],"post_process":[]}
 
     def set_name(self, name) -> object:
         """
@@ -105,6 +107,25 @@ class Route:
         """
         return self.middleware
 
+    def unset_middleware(self,stage:int,middleware_list:list) -> object:
+        """
+        This method allows for unsetting global middleware for the particular route
+        :param stage:
+        :param middleware_list:
+        :return:
+        """
+        if stage == Middleware.PREPROCESS:
+            self.excluded_middleware["pre_process"] = self.excluded_middleware["pre_process"]+middleware_list
+        elif stage == Middleware.POSTPROCESS:
+            self.excluded_middleware["pre_process"] = self.excluded_middleware["pre_process"]+middleware_list
+        return self
+
+    def get_excluded_middleware(self) -> dict:
+        """
+        This method returns a dictionary of excluded middleware
+        :return: exclude_middleware
+        """
+        return self.excluded_middleware
 
     def set_url(self, url) -> object:
         """
@@ -145,5 +166,7 @@ class Route:
         route["url"] = self.get_url()
         assert  isinstance(self.get_middleware(),dict)," Middleware must be of type dict"
         route["middleware"] = self.get_middleware()
+        assert isinstance(self.get_excluded_middleware(),dict),"Excluded middleware must be stored in a dict"
+        route["excluded_middleware"] = self.get_excluded_middleware()
 
         return route
