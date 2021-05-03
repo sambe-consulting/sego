@@ -143,14 +143,13 @@ class MiddlewareManager(object):
         if stage == Middleware.PREPROCESS:
             route_excluded_middleware = route["excluded_middleware"]["pre_process"]
             route_middleware = route["middleware"]["pre_process"]
-            self.run(stage=stage,middleware_list=diff(self.pre_process_middleware,route_excluded_middleware),request=request,response=response)
-            self.run(stage=stage,middleware_list=diff(route_middleware,route_excluded_middleware),request=request,response=response)
+            self.run(stage=stage,middleware_list=self.diff(self.pre_process_middleware,route_excluded_middleware),request=request,response=response)
+            self.run(stage=stage,middleware_list=self.diff(route_middleware,route_excluded_middleware),request=request,response=response)
         elif stage == Middleware.POSTPROCESS:
             route_excluded_middleware = route["excluded_middleware"]["post_process"]
             route_middleware = route["middleware"]["post_process"]
-            diff(route_middleware, route_excluded_middleware)
-            self.run(stage=stage,middleware_list=diff(self.post_process_middleware,route_excluded_middleware),request=request,response=response)
-            self.run(stage=stage,middleware_list=diff(route_middleware, route_excluded_middleware),request=request,response=response)
+            self.run(stage=stage,middleware_list=self.diff(self.post_process_middleware,route_excluded_middleware),request=request,response=response)
+            self.run(stage=stage,middleware_list=self.diff(route_middleware, route_excluded_middleware),request=request,response=response)
         else:
             raise SegoBaseException("Use 'Middleware.PREPROCESS or Middleware.POSTPROCESS for the stage argument")
 
