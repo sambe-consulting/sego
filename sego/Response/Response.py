@@ -18,6 +18,7 @@ class Response:
         self.json = None
         self.html = None
         self.text = None
+        self.location = None
         self.content_type = None
         self.body = b''
         self.status_code = 200
@@ -27,6 +28,10 @@ class Response:
         response = WebObResponse(
             body=self.body, content_type=self.content_type, status=self.status_code
         )
+
+        if self.location is not None:
+            response.location = self.location
+
         return response(environ, start_response)
 
     def set_body_and_content_type(self):
@@ -41,3 +46,7 @@ class Response:
         if self.text is not None:
             self.body = self.text
             self.content_type = "text/plain"
+
+        if self.location is not None:
+           self.status_code = 308
+
