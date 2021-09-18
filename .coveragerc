@@ -1,2 +1,0 @@
-[run]
-omit = env/*,test_bumbo.py,conftest.py,app.py,*/__init__.py,Controllers/*

@@ -5,27 +5,30 @@
 # Original Date:            10 March 2021                                 #
 # Version:                  0.1.0                                         #
 # ************************************************************************#
+
 from wsgiadapter import WSGIAdapter as RequestsWSGIAdapter
 from .Response.Response import Response as SegoResponse
 from requests import Session as RequestsSession
-from orator import DatabaseManager,Schema,Model
+from orator import DatabaseManager, Schema, Model
 from singleton_decorator import singleton
 from .Routing.Router import Router
-from whitenoise import WhiteNoise
 from confo.Confo import Confo
 import confo.Backends as BE
 from webob import Request
 from .Exceptions import *
 from .Middleware import *
-import uuid, os
+import uuid
 import inspect
 
+##New imports
+from flask import Flask, Request
 
 
 
 @singleton
 class Sego:
     def __init__(self, application_name=None):
+        self.flask_app = None
         self.database = None
         self.router = Router()
         self.configuration_manager = Confo()
@@ -35,45 +38,11 @@ class Sego:
         self.view_environment = None
         self.exception_handlers = {}
         self.app_exception = None
-        self.static_file_manager = None
+        self.static_file_directory = None
         self.middleware_manager = MiddlewareManager()
         self.middleware = None
         self.route_parameters = None
         self.session_kwargs = None
-
-    def __call__(self, environ, start_response):
-        """
-        This method defines the callable interface into sego
-        :param environ:
-        :param start_response:
-        :return:
-        """
-        return self.static_file_manager(environ, start_response)
-
-    def wsgi_app(self, environ, start_response) -> Response:
-        """
-        This method defines an entry point into the WSGI (Web Server Gateway Interface)
-        application
-        :param environ:
-        :param start_response:
-        :return: response : webob.Response
-        """
-
-        request = Request(environ)
-        self.route_parameters, self.session_kwargs = self.router.find_route(request=request)
-        if self.route_parameters is not None:
-            self.middleware_manager.process_middleware(stage=Middleware.PREPROCESS,\
-                                                       route=self.route_parameters,\
-                                                       request=request,\
-                                                       response=None)
-
-        response = self.handle_request(request)
-        if self.route_parameters is not None:
-            self.middleware_manager.process_middleware(stage=Middleware.POSTPROCESS,\
-                                                   route=self.route_parameters,\
-                                                   request=request,\
-                                                   response=response)
-        return response(environ, start_response)
 
     def get_application_name(self) -> str:
         """
@@ -165,7 +134,6 @@ class Sego:
         route_parameters = self.route_parameters
         kwargs = self.session_kwargs
 
-
         try:
             if route_parameters is not None:
                 handler = self.router.build_handler(route_parameters=route_parameters)
@@ -232,16 +200,16 @@ class Sego:
         else:
             raise exception
 
-    def register_static_files(self,static_dir):
+    def register_static_files(self, static_dir):
         """
         This method registers a directory where static_files (images,css,js,...) are stored,
         this system allows us to serve static files from Sego
         :param static_dir:
         :return:
         """
-        self.static_file_manager = WhiteNoise(self.wsgi_app, root=static_dir)
+        self.static_file_directory = static_dir
 
-    def register_middleware(self,middleware):
+    def register_middleware(self, middleware):
         self.middleware = __import__(middleware)
 
     def register_database(self):
@@ -259,3 +227,28 @@ class Sego:
         session = RequestsSession()
         session.mount(prefix=base_url, adapter=RequestsWSGIAdapter(self))
         return session
+
+    def setup_flask_app(self):
+
+        """
+
+        :return:
+        """
+
+        self.flask_app = Flask(self.application_name,
+                               static_url_path='',
+                               static_folder=self.static_file_directory)
+
+        self.router.load_flask_application(self.flask_app)
+
+    def run(self, host=None, port=None, debug=None, load_dotenv=True, **options) -> None:
+        """
+                Runs the application on a local development server.
+        :param host:
+        :param port:
+        :param debug:
+        :param load_dotenv:
+        :param options:
+        :return:
+        """
+        self.flask_app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
