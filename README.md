@@ -39,13 +39,11 @@ rapid development environment.
 - Native integration to <a href="https://github.com/sambe-consulting/confo">Confo </a> for all configuration management tasks,which also allows the building of complex topologies. 
 #### Name etymology
 Sego is a <a href="https://en.wikipedia.org/wiki/Northern_Sotho_language">Sepedi </a> word which refers to a flask made out of <a href="https://en.wikipedia.org/wiki/Calabash">Calabash gourd</a>, appropriately named as a nod to 
-the elegantly built <a href="https://github.com/pallets/flask">Flask framework</a>
+the elegantly built <a href="https://github.com/pallets/flask">Flask framework</a> which **Sego** extends 
 
 
 ## Getting started
 
-```
-pip install sego
-```
+1. <a href="">Installation </a>
 
 
