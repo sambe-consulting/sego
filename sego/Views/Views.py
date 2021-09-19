@@ -19,9 +19,17 @@ class Views(object):
         create a jinja templating environment
         :param view_path:
         """
+        self.view_path = view_path
         self.view_environment = Environment(
             loader=FileSystemLoader(os.path.abspath(view_path))
         )
+
+    def get_view_path(self):
+        """
+         This method returns the path to the templates
+        :return self.view_path:
+        """
+        return self.view_path
 
     def render_view(self, view_name, context=None):
         """
