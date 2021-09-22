@@ -47,16 +47,7 @@ class Sego:
         :param overwrite:
         :return:
         """
-        if inspect.isclass(exception):
-            exception = exception.__name__
-
-        if exception in self.exception_handlers:
-            if overwrite:
-                self.exception_handlers[exception] = handler
-            else:
-                raise Exception("Exception already registered, to force the registration, set 'overwrite' to True")
-        else:
-            self.exception_handlers[exception] = handler
+        self.flask_app.register_error_handler(exception,handler)
 
     def register_exception_handlers(self, exception_handlers):
         """
@@ -64,7 +55,7 @@ class Sego:
         :param exception_handlers:
         :return:
         """
-        self.exception_handlers = __import__(exception_handlers)
+        self.exception_handlers = exception_handlers
 
     def register_static_files(self, static_dir):
         """
@@ -155,8 +146,11 @@ class Sego:
     def setup_app(self):
         self.flask_app = Flask(self.application_name,
                                static_folder=self.static_dir,
+                               static_url_path ="",
                                template_folder=self.templates_dir)
         self.router.load_flask_app(flask_app=self.flask_app)
+
+        self.exception_handlers = __import__(self.exception_handlers)
 
     def get_app(self):
         """
